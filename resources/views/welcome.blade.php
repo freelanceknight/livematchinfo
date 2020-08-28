@@ -4,10 +4,13 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>Laravel</title>
+        <title>Live Match Info</title>
 
         <!-- Fonts -->
         <link href="https://fonts.googleapis.com/css?family=Nunito:200,600" rel="stylesheet">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 
         <!-- Styles -->
         <style>
@@ -16,85 +19,116 @@
                 color: #636b6f;
                 font-family: 'Nunito', sans-serif;
                 font-weight: 200;
-                height: 100vh;
-                margin: 0;
+            }
+            .custom-live-p-info {
+                font-size: 12px;
+                color: orangered;
+                margin: 0 0 6px;
+            }
+            .custom-live-p-date {
+                color: orangered;
+                margin: 20px 0 6px;
+            }
+            .custom-upcoming-p-info {
+                font-size: 12px;
+                margin: 0 0 6px;
+            }
+            .custom-upcoming-p-margin {
+                margin-top:15px;
             }
 
-            .full-height {
-                height: 100vh;
-            }
 
-            .flex-center {
-                align-items: center;
-                display: flex;
-                justify-content: center;
-            }
-
-            .position-ref {
-                position: relative;
-            }
-
-            .top-right {
-                position: absolute;
-                right: 10px;
-                top: 18px;
-            }
-
-            .content {
-                text-align: center;
-            }
-
-            .title {
-                font-size: 84px;
-            }
-
-            .links > a {
-                color: #636b6f;
-                padding: 0 25px;
-                font-size: 13px;
-                font-weight: 600;
-                letter-spacing: .1rem;
-                text-decoration: none;
-                text-transform: uppercase;
-            }
-
-            .m-b-md {
-                margin-bottom: 30px;
-            }
         </style>
     </head>
     <body>
-        <div class="flex-center position-ref full-height">
-            @if (Route::has('login'))
-                <div class="top-right links">
-                    @auth
-                        <a href="{{ url('/home') }}">Home</a>
-                    @else
-                        <a href="{{ route('login') }}">Login</a>
+    <div class="container-fluid">
+        <h2>Live Match Info</h2>
 
-                        @if (Route::has('register'))
-                            <a href="{{ route('register') }}">Register</a>
-                        @endif
-                    @endauth
-                </div>
-            @endif
+        <ul class="nav nav-tabs">
+            <li class="active"><a data-toggle="tab" href="#home">Live & Upcoming</a></li>
+        </ul>
 
-            <div class="content">
-                <div class="title m-b-md">
-                    Laravel
-                </div>
 
-                <div class="links">
-                    <a href="https://laravel.com/docs">Docs</a>
-                    <a href="https://laracasts.com">Laracasts</a>
-                    <a href="https://laravel-news.com">News</a>
-                    <a href="https://blog.laravel.com">Blog</a>
-                    <a href="https://nova.laravel.com">Nova</a>
-                    <a href="https://forge.laravel.com">Forge</a>
-                    <a href="https://vapor.laravel.com">Vapor</a>
-                    <a href="https://github.com/laravel/laravel">GitHub</a>
-                </div>
+        <div class="tab-content">
+            <div id="home" class="tab-pane fade in active">
+                <br>
+                @if(!empty($allLiveMatchesItems))
+                    @foreach($allLiveMatchesItems as $items)
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <p>
+                                    <span style="background-color: orange" class="badge ">LIVE</span> {{$items->subtitle}}</p>
+                                <p class="custom-live-p-info">{{$items->venue->name}},{{$items->venue->location}}</p>
+                                <p class="custom-live-p-info">{{date('h:i A',$items->timestamp_start)}} Local Time</p>
+                            </div>
+                            <div class="col-sm-2">
+                                <p class="text-center"><strong>{{strtoupper($items->teama->name)}}</strong></p>
+                                @if(!empty($items->teama->scores_full))
+                                <p class="text-center">
+                                    {{$items->teama->scores_full}}
+                                </p>
+                                @endif
+                            </div>
+                            <div class="col-sm-3 text-center">
+                                <div class="col-sm-4"><img src="{{$items->teama->logo_url}}"
+                                                           class="img-responsive img-thumbnail">
+                                </div>
+                                <div class="col-sm-4 text-center"><h4>VS</h4></div>
+                                <div class="col-sm-4"><img src="{{$items->teamb->logo_url}}"
+                                                           class="img-responsive img-thumbnail">
+                                </div>
+                            </div>
+                            <div class="col-sm-2 text-center">
+                                <p><strong>{{strtoupper($items->teamb->name)}}</strong></p>
+                                @if(!empty($items->teamb->scores_full))
+                                    <p>
+                                        {{$items->teamb->scores_full}}
+                                    </p>
+                                @endif
+                            </div>
+                            <div class="col-sm-2 text-center">
+                                <p class="custom-live-p-date"><strong>{{date('j F, Y',$items->timestamp_start)}}</strong></p>
+                            </div>
+                        </div>
+                        <hr>
+                    @endforeach
+                @endif
+                @if(!empty($allUpcomingMatchesItems))
+                    @foreach($allUpcomingMatchesItems as $items)
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <p>
+                                    <span class="badge ">Upcoming</span> {{$items->subtitle}}</p>
+                                <p class="custom-upcoming-p-info">{{$items->venue->name}},{{$items->venue->location}}</p>
+                                <p class="custom-upcoming-p-info">{{date('h:i A',$items->timestamp_start)}} Local Time</p>
+                            </div>
+                            <div class="col-sm-2 text-center">
+                                <p class="custom-upcoming-p-margin"><strong>{{strtoupper($items->teama->name)}}</strong></p>
+                            </div>
+                            <div class="col-sm-3 text-center">
+                                <div class="col-sm-4"><img src="{{$items->teama->logo_url}}"
+                                                           class="img-responsive img-thumbnail">
+                                </div>
+                                <div class="col-sm-4 text-center"><h4>VS</h4></div>
+                                <div class="col-sm-4"><img src="{{$items->teamb->logo_url}}"
+                                                           class="img-responsive img-thumbnail">
+                                </div>
+                            </div>
+                            <div class="col-sm-2 text-center">
+                                <p class="custom-upcoming-p-margin"><strong>{{strtoupper($items->teamb->name)}}</strong></p>
+
+                            </div>
+                            <div class="col-sm-2 text-center">
+                                <p class="custom-upcoming-p-margin"><strong>{{date('j F, Y',$items->timestamp_start)}}</strong></p>
+                            </div>
+                        </div>
+                        <hr>
+                    @endforeach
+                @endif
+
             </div>
         </div>
+    </div>
+
     </body>
 </html>
